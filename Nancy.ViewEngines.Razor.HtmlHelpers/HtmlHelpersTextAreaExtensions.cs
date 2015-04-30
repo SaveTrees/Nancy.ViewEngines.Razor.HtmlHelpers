@@ -6,7 +6,10 @@ using Nancy.Helpers;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
-    public static class HtmlHelpersTextAreaExtensions
+	using System.Linq;
+	using Validation;
+
+	public static class HtmlHelpersTextAreaExtensions
     {
         private const int TextAreaRows = 2;
         private const int TextAreaColumns = 20;
@@ -68,7 +71,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildTextArea(name, value, ImplicitRowsAndColumns, htmlAttributes);
+			return BuildTextArea(helper.RenderContext.Context.ModelValidationResult, name, value, ImplicitRowsAndColumns, htmlAttributes);
         }
 
         public static IHtmlString TextArea<TModel>(this HtmlHelpers<TModel> helper, string name, string value, int rows, int columns, object htmlAttributes)
@@ -82,12 +85,22 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
-            return BuildTextArea(name, value, GetRowsAndColumnsDictionary(rows, columns), htmlAttributes);
+			return BuildTextArea(helper.RenderContext.Context.ModelValidationResult, name, value, GetRowsAndColumnsDictionary(rows, columns), htmlAttributes);
         }
 
-        private static IHtmlString BuildTextArea(string name, string value, IDictionary<string, object> rowsAndColumnsDictionary, IDictionary<string, object> htmlAttributes)
+		private static IHtmlString BuildTextArea(ModelValidationResult modelValidationResult, string name, string value, IDictionary<string, object> rowsAndColumnsDictionary, IDictionary<string, object> htmlAttributes)
         {
             var tagBuilder = new TagBuilder("textarea");
+
+			TagBuilder validationLabel = null;
+			if (!modelValidationResult.IsValid && modelValidationResult.Errors.Any(e => e.Key == name))
+			{
+				tagBuilder.MergeAttributes(new Dictionary<string, object> { { "class", HtmlHelperExtensions.ErrorClass } }, true);
+				validationLabel = new TagBuilder("label");
+				validationLabel.AddCssClass("error");
+				var error = modelValidationResult.Errors.First(e => e.Key == name).Value;
+				validationLabel.InnerHtml = error.First();
+			}
 
             //if (UnobtrusiveJavaScriptEnabled)
             //{
@@ -115,8 +128,9 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
             //AddErrorClass(tagBuilder, name);
 
-            return tagBuilder.ToHtmlString(TagRenderMode.Normal);
-        }
+            var textAreaTag = tagBuilder.ToHtmlString(TagRenderMode.Normal);
+			return (validationLabel != null) ? textAreaTag + validationLabel.ToHtmlString(TagRenderMode.Normal) : textAreaTag;
+		}
 
         private static readonly IDictionary<string, object> ImplicitRowsAndColumns = new Dictionary<string, object>
         {
