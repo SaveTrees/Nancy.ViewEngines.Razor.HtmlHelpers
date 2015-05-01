@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 using Nancy.Helpers;
 using Nancy.Validation;
-using System.Linq;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
@@ -89,18 +88,8 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
         private static IHtmlString BuildTextArea(ModelValidationResult modelValidationResult, string name, string value, IDictionary<string, object> rowsAndColumnsDictionary, IDictionary<string, object> htmlAttributes)
         {
-            var tagBuilder = new TagBuilder("textarea");
-
-            TagBuilder validationLabel = null;
-            if (!modelValidationResult.IsValid && modelValidationResult.Errors.Any(e => e.Key == name))
-            {
-                tagBuilder.MergeAttributes(new Dictionary<string, object> { { "class", HtmlHelperExtensions.ErrorClass } }, true);
-                validationLabel = new TagBuilder("label");
-                validationLabel.AddCssClass("error");
-                var error = modelValidationResult.Errors.First(e => e.Key == name).Value;
-                validationLabel.InnerHtml = error.First();
-            }
-
+            var textAreaTag = new TagBuilder("textarea");
+            
             //if (UnobtrusiveJavaScriptEnabled)
             //{
             //    // Add validation attributes
@@ -109,9 +98,9 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             //}
 
             // Add user specified htmlAttributes
-            tagBuilder.MergeAttributes(htmlAttributes);
+            textAreaTag.MergeAttributes(htmlAttributes);
 
-            tagBuilder.MergeAttributes(rowsAndColumnsDictionary, rowsAndColumnsDictionary != ImplicitRowsAndColumns);
+            textAreaTag.MergeAttributes(rowsAndColumnsDictionary, rowsAndColumnsDictionary != ImplicitRowsAndColumns);
 
             // Value becomes the inner html of the textarea element
             //var modelState = ModelState[name];
@@ -119,22 +108,26 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             {
                 value = value; //?? Convert.ToString(ModelState[name].Value, CultureInfo.CurrentCulture);
             }
-            tagBuilder.InnerHtml = String.IsNullOrEmpty(value) ? String.Empty : HttpUtility.HtmlEncode(value);
+            textAreaTag.InnerHtml = string.IsNullOrEmpty(value) ? string.Empty : HttpUtility.HtmlEncode(value);
 
             //Assign name and id
-            tagBuilder.MergeAttribute("name", name);
-            tagBuilder.GenerateId(name);
+            textAreaTag.MergeAttribute("name", name);
+            textAreaTag.GenerateId(name);
 
             //AddErrorClass(tagBuilder, name);
 
-            var textAreaTag = tagBuilder.ToHtmlString(TagRenderMode.Normal);
+            var closedTextAreaTag = textAreaTag.ToHtmlString(TagRenderMode.Normal);
 
-            if (validationLabel != null)
+            if (!modelValidationResult.IsValid)
             {
-                textAreaTag += validationLabel.ToHtmlString(TagRenderMode.Normal);
+                textAreaTag.MergeAttributes(new Dictionary<string, object> { { "class", HtmlHelperExtensions.ErrorClass } }, true);
+
+                var validationLabel = HtmlHelperExtensions.CreateValidationLabel(modelValidationResult, name, textAreaTag);
+
+                closedTextAreaTag += validationLabel.ToHtmlString(TagRenderMode.Normal);
             }
 
-            return textAreaTag;
+            return closedTextAreaTag;
         }
 
         private static readonly IDictionary<string, object> ImplicitRowsAndColumns = new Dictionary<string, object>
