@@ -39,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HtmlHelperExtensions.cs" />
-    <Compile Include="HtmlHelperFormExtensions.cs" />
     <Compile Include="HtmlHelperInputExtensions.cs" />
     <Compile Include="HtmlHelpersCheckBoxExtensions.cs" />
     <Compile Include="HtmlHelpersRadioExtensions.cs" />
