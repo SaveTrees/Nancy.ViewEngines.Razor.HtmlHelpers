@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
@@ -19,10 +19,10 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase<TModel> view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase<TModel> view)
 			{
 				_view = view;
-				view.WriteLiteral(tagOpen);
+				view.WriteLiteral(tagOpen.ToHtmlString());
 			}
 
 			/// <summary>
@@ -52,7 +52,8 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase view) : base(tagOpen, view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase view)
+				: base(tagOpen, view)
 			{
 			}
 		}
@@ -64,7 +65,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 		/// <param name="name">The name of the form, if <c>null</c> then it takes the values of <paramref name="id"/></param>
 		/// <param name="method">The HTTP method for the form action</param>
 		/// <returns>An html-formatted string representing the opening form tag markup</returns>
-		private static IHtmlString GetFormTag(string id = null, string name = null, string method = "POST")
+		private static NonEncodedHtmlString GetFormTag(string id = null, string name = null, string method = "POST")
 		{
 			var idAttribute = id == null ? string.Empty : string.Format(" id=\"{0}\"", id);
 			
