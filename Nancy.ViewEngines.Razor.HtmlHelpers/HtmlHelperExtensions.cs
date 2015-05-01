@@ -17,6 +17,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 		{
 			var validationLabel = new TagBuilder("label");
 			validationLabel.Attributes.Add("for", name);
+			validationLabel.AddCssClass(ErrorClass);
 
 			var errorMessages = modelValidationResult.Errors
 				.Where(e => e.Key == name)
