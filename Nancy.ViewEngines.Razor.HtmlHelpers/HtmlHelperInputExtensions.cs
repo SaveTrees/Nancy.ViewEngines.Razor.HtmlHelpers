@@ -198,6 +198,8 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
             if (writeOutErrorLabel || !modelValidationResult.IsValid)
             {
+                inputTag.AddCssClass(HtmlHelperExtensions.ErrorClass);
+                
                 var validationLabel = HtmlHelperExtensions.CreateValidationLabel(modelValidationResult, name, inputTag);
 
                 tag += validationLabel.ToHtmlString(TagRenderMode.Normal);

@@ -121,6 +121,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             if (!modelValidationResult.IsValid)
             {
                 textAreaTag.MergeAttributes(new Dictionary<string, object> { { "class", HtmlHelperExtensions.ErrorClass } }, true);
+				textAreaTag.AddCssClass(HtmlHelperExtensions.ErrorClass);
 
                 var validationLabel = HtmlHelperExtensions.CreateValidationLabel(modelValidationResult, name, textAreaTag);
 
