@@ -32,18 +32,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Nancy">
-      <HintPath>..\packages\Nancy.0.21.1\lib\net40\Nancy.dll</HintPath>
-    </Reference>
-    <Reference Include="Nancy.ViewEngines.Razor">
-      <HintPath>..\packages\Nancy.Viewengines.Razor.0.21.1\lib\net40\Nancy.ViewEngines.Razor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HtmlHelperExtensions.cs" />
     <Compile Include="HtmlHelperFormExtensions.cs" />
     <Compile Include="HtmlHelperInputExtensions.cs" />
     <Compile Include="HtmlHelpersCheckBoxExtensions.cs" />
@@ -72,6 +67,14 @@
     <ProjectReference Include="..\..\Nancy\src\Nancy.ViewEngines.Razor\Nancy.ViewEngines.Razor.csproj">
       <Project>{2c6f51df-015c-4db6-b44c-0e5e4f25e2a9}</Project>
       <Name>Nancy.ViewEngines.Razor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Nancy\src\Nancy.ViewEngines.Razor\Nancy.ViewEngines.Razor.csproj">
+      <Project>{2c6f51df-015c-4db6-b44c-0e5e4f25e2a9}</Project>
+      <Name>Nancy.ViewEngines.Razor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Nancy\src\Nancy\Nancy.csproj">
+      <Project>{34576216-0dca-4b0f-a0dc-9075e75a676f}</Project>
+      <Name>Nancy</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Nancy\src\Nancy\Nancy.csproj">
       <Project>{34576216-0dca-4b0f-a0dc-9075e75a676f}</Project>

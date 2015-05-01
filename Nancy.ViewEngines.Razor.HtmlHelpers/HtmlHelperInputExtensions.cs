@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Linq;
 using System.Linq.Expressions;
+using Nancy.Validation;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
@@ -9,47 +10,47 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
     {
         public static IHtmlString TextBoxFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression)
         {
-            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), null);
+            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), null, true);
         }
 
-        public static IHtmlString TextBoxFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, object htmlAttributes)
+        public static IHtmlString TextBoxFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, object htmlAttributes, bool writeOutErrorLabels = false)
         {
-            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), htmlAttributes);
+            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), htmlAttributes, writeOutErrorLabels);
         }
 
         public static IHtmlString TextBoxFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, IDictionary<string, object> htmlAttributes)
         {
-            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), TypeHelper.ObjectToDictionary(htmlAttributes));
+            return TextBox(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), TypeHelper.ObjectToDictionary(htmlAttributes), true);
         }
 
-        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name)
+        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Text, null, false, null);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Text, null, false, null, true);
         }
 
         public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, object value)
         {
-            return TextBox(helper, name, value, null);
+            return TextBox(helper, name, value, null, true);
         }
 
-        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, object value, object htmlAttributes)
+        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, object value, object htmlAttributes, bool writeOutErrorLabels)
         {
-            return TextBox(helper, name, value, TypeHelper.ObjectToDictionary(htmlAttributes));
+            return TextBox(helper, name, value, TypeHelper.ObjectToDictionary(htmlAttributes), writeOutErrorLabels);
         }
 
-        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes)
+        public static IHtmlString TextBox<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Text, value, true, htmlAttributes);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Text, value, true, htmlAttributes, writeOutErrorLabels);
         }
 
         public static IHtmlString HiddenFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression)
@@ -67,14 +68,14 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             return Hidden(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), TypeHelper.ObjectToDictionary(htmlAttributes));
         }
 
-        public static IHtmlString Hidden<TModel>(this HtmlHelpers<TModel> helper, string name)
+        public static IHtmlString Hidden<TModel>(this HtmlHelpers<TModel> helper, string name, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Hidden, null, false, null);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Hidden, null, false, null, writeOutErrorLabels);
         }
 
         public static IHtmlString Hidden<TModel>(this HtmlHelpers<TModel> helper, string name, object value)
@@ -87,14 +88,14 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             return Hidden(helper, name, value, TypeHelper.ObjectToDictionary(htmlAttributes));
         }
 
-        public static IHtmlString Hidden<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes)
+        public static IHtmlString Hidden<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Hidden, GetHiddenFieldValue(value), true, htmlAttributes);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Hidden, GetHiddenFieldValue(value), true, htmlAttributes, writeOutErrorLabels);
         }
 
         private static object GetHiddenFieldValue(object value)
@@ -105,7 +106,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
                 value = binaryValue.ToArray();
             }
 
-            byte[] byteArrayValue = value as byte[];
+            var byteArrayValue = value as byte[];
             if (byteArrayValue != null)
             {
                 value = Convert.ToBase64String(byteArrayValue);
@@ -114,61 +115,61 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             return value;
         }
 
-        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression)
+        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, bool writeOutErrorLabels = false)
         {
-            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), null);
+            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), null, writeOutErrorLabels);
         }
 
-        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, object htmlAttributes)
+        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, object htmlAttributes, bool writeOutErrorLabels = false)
         {
-            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), htmlAttributes);
+            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), htmlAttributes, writeOutErrorLabels);
         }
 
-        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, IDictionary<string, object> htmlAttributes)
+        public static IHtmlString PasswordFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression, IDictionary<string, object> htmlAttributes, bool writeOutErrorLabels)
         {
-            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), TypeHelper.ObjectToDictionary(htmlAttributes));
+            return Password(helper, ExpressionHelper.GetExpressionText(expression), expression.Compile()(helper.Model), TypeHelper.ObjectToDictionary(htmlAttributes), writeOutErrorLabels);
         }
 
-        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name)
+        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Password, null, false, null);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Password, null, false, null, writeOutErrorLabels);
         }
 
-        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value)
+        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value, bool writeOutErrorLabels)
         {
-            return Password(helper, name, value, null);
+            return Password(helper, name, value, null, writeOutErrorLabels);
         }
 
-        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value, object htmlAttributes)
+        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value, object htmlAttributes, bool writeOutErrorLabels)
         {
-            return Password(helper, name, value, TypeHelper.ObjectToDictionary(htmlAttributes));
+            return Password(helper, name, value, TypeHelper.ObjectToDictionary(htmlAttributes), writeOutErrorLabels);
         }
 
-        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes)
+        public static IHtmlString Password<TModel>(this HtmlHelpers<TModel> helper, string name, object value, IDictionary<string, object> htmlAttributes, bool writeOutErrorLabels)
         {
             if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildInputField(name, InputType.Password, value, true, htmlAttributes);
+            return BuildInputField(helper.RenderContext.Context.ModelValidationResult, name, InputType.Password, value, true, htmlAttributes, writeOutErrorLabels);
         }
 
-        private static IHtmlString BuildInputField(string name, InputType type, object value, bool isExplicitValue,
-            IDictionary<string, object> attributes)
+        private static IHtmlString BuildInputField(ModelValidationResult modelValidationResult, string name, InputType type, object value, bool isExplicitValue, IDictionary<string, object> attributes,  bool writeOutErrorLabel
+            )
         {
-            var tagBuilder = new TagBuilder("input");
+            var inputTag = new TagBuilder("input");
             // Implicit parameters
-            tagBuilder.MergeAttribute("type", GetInputTypeString(type));
-            tagBuilder.GenerateId(name);
+            inputTag.MergeAttribute("type", GetInputTypeString(type));
+            inputTag.GenerateId(name);
 
             // Overwrite implicit
-            tagBuilder.MergeAttributes(attributes, true);
+            inputTag.MergeAttributes(attributes, true);
 
             //if (UnobtrusiveJavaScriptEnabled)
             //{
@@ -178,7 +179,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             //}
 
             // Function arguments
-            tagBuilder.MergeAttribute("name", name, true);
+            inputTag.MergeAttribute("name", name, true);
             //var modelState = ModelState[name];
             //if ((type != InputType.Password) && modelState != null)
             {
@@ -189,10 +190,22 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             if ((type != InputType.Password) || ((type == InputType.Password) && (value != null)))
             {
                 // Review: Do we really need to be this pedantic about sticking to mvc?
-                tagBuilder.MergeAttribute("value", Convert.ToString(value), isExplicitValue);
+                inputTag.MergeAttribute("value", Convert.ToString(value), isExplicitValue);
             }
-                        //AddErrorClass(tagBuilder, name);
-            return tagBuilder.ToHtmlString(TagRenderMode.SelfClosing);
+        
+            //AddErrorClass(tagBuilder, name);
+            var tag = inputTag.ToHtmlString(TagRenderMode.SelfClosing);
+
+            if (writeOutErrorLabel || !modelValidationResult.IsValid)
+            {
+                inputTag.AddCssClass(HtmlHelperExtensions.ErrorClass);
+                
+                var validationLabel = HtmlHelperExtensions.CreateValidationLabel(modelValidationResult, name, inputTag);
+
+                tag += validationLabel.ToHtmlString(TagRenderMode.Normal);
+            }
+
+            return tag;
         }
 
         private static string GetInputTypeString(InputType inputType)
