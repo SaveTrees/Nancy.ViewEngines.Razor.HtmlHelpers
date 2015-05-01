@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using Nancy.Helpers;
+using Nancy.Validation;
+using System.Linq;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
@@ -68,7 +70,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
 
-            return BuildTextArea(name, value, ImplicitRowsAndColumns, htmlAttributes);
+            return BuildTextArea(helper.RenderContext.Context.ModelValidationResult, name, value, ImplicitRowsAndColumns, htmlAttributes);
         }
 
         public static IHtmlString TextArea<TModel>(this HtmlHelpers<TModel> helper, string name, string value, int rows, int columns, object htmlAttributes)
@@ -82,12 +84,22 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "name");
             }
-            return BuildTextArea(name, value, GetRowsAndColumnsDictionary(rows, columns), htmlAttributes);
+            return BuildTextArea(helper.RenderContext.Context.ModelValidationResult, name, value, GetRowsAndColumnsDictionary(rows, columns), htmlAttributes);
         }
 
-        private static IHtmlString BuildTextArea(string name, string value, IDictionary<string, object> rowsAndColumnsDictionary, IDictionary<string, object> htmlAttributes)
+        private static IHtmlString BuildTextArea(ModelValidationResult modelValidationResult, string name, string value, IDictionary<string, object> rowsAndColumnsDictionary, IDictionary<string, object> htmlAttributes)
         {
             var tagBuilder = new TagBuilder("textarea");
+
+            TagBuilder validationLabel = null;
+            if (!modelValidationResult.IsValid && modelValidationResult.Errors.Any(e => e.Key == name))
+            {
+                tagBuilder.MergeAttributes(new Dictionary<string, object> { { "class", HtmlHelperExtensions.ErrorClass } }, true);
+                validationLabel = new TagBuilder("label");
+                validationLabel.AddCssClass("error");
+                var error = modelValidationResult.Errors.First(e => e.Key == name).Value;
+                validationLabel.InnerHtml = error.First();
+            }
 
             //if (UnobtrusiveJavaScriptEnabled)
             //{
@@ -115,7 +127,14 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
             //AddErrorClass(tagBuilder, name);
 
-            return tagBuilder.ToHtmlString(TagRenderMode.Normal);
+            var textAreaTag = tagBuilder.ToHtmlString(TagRenderMode.Normal);
+
+            if (validationLabel != null)
+            {
+                textAreaTag += validationLabel.ToHtmlString(TagRenderMode.Normal);
+            }
+
+            return textAreaTag;
         }
 
         private static readonly IDictionary<string, object> ImplicitRowsAndColumns = new Dictionary<string, object>
