@@ -38,6 +38,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HtmlHelperFormExtensions.cs" />
     <Compile Include="HtmlHelperInputExtensions.cs" />
     <Compile Include="HtmlHelpersCheckBoxExtensions.cs" />
     <Compile Include="HtmlHelpersRadioExtensions.cs" />
