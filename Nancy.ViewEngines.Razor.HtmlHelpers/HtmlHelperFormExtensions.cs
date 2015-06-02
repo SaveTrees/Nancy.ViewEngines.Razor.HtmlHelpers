@@ -19,7 +19,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase<TModel> view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase<TModel> view)
 			{
 				_view = view;
 				view.WriteLiteral(tagOpen.ToHtmlString());
@@ -34,9 +34,9 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			}
 		}
 
-		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string id = null, string action = null, string method = "POST", string name = null)
+		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string action = null, string name = null, string id = null, string method = "POST")
 		{
-			var tag = GetFormTag(id, name, action, method);
+			var tag = GetFormTag(action, id, name, method);
 
 			var beginFormObject = new BeginFormObject<TModel>(tag, view);
 			return beginFormObject;
@@ -52,7 +52,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase view)
 				: base(tagOpen, view)
 			{
 			}
@@ -72,8 +72,8 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			
 			if (name == null) name = id ?? string.Empty;
 			var nameAttribute = string.Format(" name=\"{0}\"", name);
-			var actionAttribute = action == null ? string.Empty : string.Format(" action=\"{0}\"", action);
 			var methodAttribute = string.Format(" method=\"{0}\"", method);
+			var actionAttribute = action == "" ? "" : string.Format(" action=\"{0}\"", action);
 
 			var tag = string.Format("<form{0}{1}{2}{3}>", methodAttribute, actionAttribute, idAttribute, nameAttribute);
 
