@@ -19,7 +19,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase<TModel> view)
+			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase<TModel> view)
 			{
 				_view = view;
 				view.WriteLiteral(tagOpen.ToHtmlString());
@@ -34,9 +34,9 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			}
 		}
 
-		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string route = null, string method = "POST", string name = null, string id = null)
+		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string id = null, string action = null, string method = "POST", string name = null)
 		{
-			var tag = GetFormTag(id, name, method);
+			var tag = GetFormTag(id, name, action, method);
 
 			var beginFormObject = new BeginFormObject<TModel>(tag, view);
 			return beginFormObject;
@@ -52,7 +52,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase view)
+			public BeginFormObject(IHtmlString tagOpen, NancyRazorViewBase view)
 				: base(tagOpen, view)
 			{
 			}
@@ -63,17 +63,19 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 		/// </summary>
 		/// <param name="id">The id of the form. If <c>null</c> then no id is written</param>
 		/// <param name="name">The name of the form, if <c>null</c> then it takes the values of <paramref name="id"/></param>
+		/// <param name="action">The route for the form action</param>
 		/// <param name="method">The HTTP method for the form action</param>
 		/// <returns>An html-formatted string representing the opening form tag markup</returns>
-		private static NonEncodedHtmlString GetFormTag(string id = null, string name = null, string method = "POST")
+		private static NonEncodedHtmlString GetFormTag(string id = null, string name = null, string action = null, string method = "POST")
 		{
 			var idAttribute = id == null ? string.Empty : string.Format(" id=\"{0}\"", id);
 			
 			if (name == null) name = id ?? string.Empty;
 			var nameAttribute = string.Format(" name=\"{0}\"", name);
+			var actionAttribute = action == null ? string.Empty : string.Format(" action=\"{0}\"", action);
 			var methodAttribute = string.Format(" method=\"{0}\"", method);
 
-			var tag = string.Format("<form{0}{1}{2}>", methodAttribute, idAttribute, nameAttribute);
+			var tag = string.Format("<form{0}{1}{2}{3}>", methodAttribute, actionAttribute, idAttribute, nameAttribute);
 
 			return new NonEncodedHtmlString(tag);
 		}
