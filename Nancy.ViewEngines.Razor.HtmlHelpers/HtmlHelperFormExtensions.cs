@@ -61,12 +61,12 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 		/// <summary>
 		/// Creates the html markup for the form opening tag
 		/// </summary>
-		/// <param name="action"></param>
 		/// <param name="id">The id of the form. If <c>null</c> then no id is written</param>
 		/// <param name="name">The name of the form, if <c>null</c> then it takes the values of <paramref name="id"/></param>
+		/// <param name="action">The route for the form action</param>
 		/// <param name="method">The HTTP method for the form action</param>
 		/// <returns>An html-formatted string representing the opening form tag markup</returns>
-		private static NonEncodedHtmlString GetFormTag(string action, string id = null, string name = null, string method = "POST")
+		private static NonEncodedHtmlString GetFormTag(string id = null, string name = null, string action = null, string method = "POST")
 		{
 			var idAttribute = id == null ? string.Empty : string.Format(" id=\"{0}\"", id);
 			
