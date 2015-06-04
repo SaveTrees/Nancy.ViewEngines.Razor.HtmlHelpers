@@ -34,7 +34,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			}
 		}
 
-		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string action = null, string name = null, string id = null, string method = "POST")
+		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string action = null, string id = null, string name = null, string method = "POST")
 		{
 			var tag = GetFormTag(action, id, name, method);
 
@@ -71,9 +71,9 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			var idAttribute = id == null ? string.Empty : string.Format(" id=\"{0}\"", id);
 			
 			if (name == null) name = id ?? string.Empty;
-			var nameAttribute = string.Format(" name=\"{0}\"", name);
+			var nameAttribute = string.IsNullOrWhiteSpace(action) ? "" : string.Format(" name=\"{0}\"", name);
 			var methodAttribute = string.Format(" method=\"{0}\"", method);
-			var actionAttribute = action == "" ? "" : string.Format(" action=\"{0}\"", action);
+			var actionAttribute = string.IsNullOrWhiteSpace(action) ? "" : string.Format(" action=\"{0}\"", action);
 
 			var tag = string.Format("<form{0}{1}{2}{3}>", methodAttribute, actionAttribute, idAttribute, nameAttribute);
 
