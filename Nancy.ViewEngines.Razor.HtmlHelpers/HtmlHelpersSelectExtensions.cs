@@ -361,7 +361,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			}
 			selectedValue = Convert.ToString(selectedValue);
 
-			var newSelectList = selectList.Select(item => new SelectListItem(item)).ToList();
+			var newSelectList = selectList == null ? new List<SelectListItem>() : selectList.Select(item => new SelectListItem(item)).ToList();
 			var selectedItem = newSelectList.FirstOrDefault(item => item.Selected || StringComparer.InvariantCultureIgnoreCase.Equals(item.Value ?? item.Text, selectedValue));
 			if (selectedItem != default(SelectListItem))
 			{
