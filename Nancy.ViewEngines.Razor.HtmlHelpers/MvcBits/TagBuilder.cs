@@ -6,7 +6,9 @@ using Nancy.Helpers;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
-    public class TagBuilder
+	using System.Linq;
+
+	public class TagBuilder
     {
         private static string _idAttributeDotReplacement;
 
@@ -16,7 +18,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
         {
             get
             {
-                if (String.IsNullOrEmpty(_idAttributeDotReplacement))
+                if (string.IsNullOrEmpty(_idAttributeDotReplacement))
                 {
                     _idAttributeDotReplacement = "_";
                 }
@@ -25,22 +27,30 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             set { _idAttributeDotReplacement = value; }
         }
 
-        public TagBuilder(string tagName)
+        public TagBuilder(string tagName, IDictionary<string, object> attributes = null)
         {
-            if (String.IsNullOrEmpty(tagName))
+            if (string.IsNullOrEmpty(tagName))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "tagName");
             }
 
             TagName = tagName;
-            Attributes = new SortedDictionary<string, string>(StringComparer.Ordinal);
+	        if (attributes == null)
+	        {
+		        Attributes = new SortedDictionary<string, string>(StringComparer.Ordinal);
+	        }
+	        else
+	        {
+		        var dictionary = attributes.Where(kvp => kvp.Value is string).ToDictionary(kvp => kvp.Key, kvp => (string)kvp.Value);
+		        Attributes = new SortedDictionary<string, string>(dictionary, StringComparer.Ordinal);
+	        }
         }
 
         public IDictionary<string, string> Attributes { get; private set; }
 
         public string InnerHtml
         {
-            get { return _innerHtml ?? String.Empty; }
+            get { return _innerHtml ?? string.Empty; }
             set { _innerHtml = value; }
         }
 
@@ -67,7 +77,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
         public static string CreateSanitizedId(string originalId, string invalidCharReplacement)
         {
-            if (String.IsNullOrEmpty(originalId))
+            if (string.IsNullOrEmpty(originalId))
             {
                 return null;
             }
@@ -111,7 +121,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             }
 
             var sanitizedId = CreateSanitizedId(name, IdAttributeDotReplacement);
-            if (String.IsNullOrEmpty(sanitizedId))
+            if (string.IsNullOrEmpty(sanitizedId))
             {
                 return;
             }
@@ -124,7 +134,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
             foreach (var attribute in Attributes)
             {
                 var key = attribute.Key;
-                if (String.Equals(key, "id", StringComparison.Ordinal /* case-sensitive */) && String.IsNullOrEmpty(attribute.Value))
+                if (string.Equals(key, "id", StringComparison.Ordinal /* case-sensitive */) && string.IsNullOrEmpty(attribute.Value))
                 {
                     continue; // DevDiv Bugs #227595: don't output empty IDs
                 }
@@ -140,7 +150,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
         public void MergeAttribute(string key, string value, bool replaceExisting)
         {
-            if (String.IsNullOrEmpty(key))
+            if (string.IsNullOrEmpty(key))
             {
                 throw new ArgumentException("Argument_Cannot_Be_Null_Or_Empty", "key");
             }

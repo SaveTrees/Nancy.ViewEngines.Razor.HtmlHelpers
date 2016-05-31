@@ -12,14 +12,14 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 		/// </summary>
 		public class BeginFormObject<TModel> : IDisposable
 		{
-			private readonly NancyRazorViewBase<TModel> _view;
+			private readonly INancyRazorView<TModel> _view;
 
 			/// <summary>
 			/// Initialise the form object by writing the opening form tag
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase<TModel> view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, INancyRazorView<TModel> view)
 			{
 				_view = view;
 				view.WriteLiteral(tagOpen.ToHtmlString());
@@ -34,7 +34,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			}
 		}
 
-		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, NancyRazorViewBase<TModel> view, string action = null, string id = null, string name = null, string method = "POST")
+		public static BeginFormObject<TModel> BeginForm<TModel>(this HtmlHelpers<TModel> helpers, INancyRazorView<TModel> view, string action = null, string id = null, string name = null, string method = "POST")
 		{
 			var tag = GetFormTag(action, id, name, method);
 
@@ -52,7 +52,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 			/// </summary>
 			/// <param name="tagOpen">The markup for opening the form tag</param>
 			/// <param name="view">The nancy razor view into which to write the html form</param>
-			public BeginFormObject(NonEncodedHtmlString tagOpen, NancyRazorViewBase view)
+			public BeginFormObject(NonEncodedHtmlString tagOpen, INancyRazorView<dynamic> view)
 				: base(tagOpen, view)
 			{
 			}

@@ -6,6 +6,8 @@ using Nancy.Validation;
 
 namespace Nancy.ViewEngines.Razor.HtmlHelpers
 {
+	using System.Linq;
+
 	public static class HtmlHelperInputExtensions
 	{
 		public static IHtmlString TextBoxFor<TModel, TProperty>(this HtmlHelpers<TModel> helper, Expression<Func<TModel, TProperty>> expression)
@@ -162,7 +164,7 @@ namespace Nancy.ViewEngines.Razor.HtmlHelpers
 
 		private static IHtmlString BuildInputField(ModelValidationResult modelValidationResult, string name, InputType type, object value, bool isExplicitValue, IDictionary<string, object> attributes)
 		{
-			var inputTag = new TagBuilder("input");
+			var inputTag = new TagBuilder("input", attributes);
 			// Implicit parameters
 			inputTag.MergeAttribute("type", GetInputTypeString(type));
 			inputTag.GenerateId(name);
